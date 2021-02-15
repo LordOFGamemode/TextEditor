@@ -1,6 +1,9 @@
 from tkinter import *
 from tkinter import filedialog
-from tkinter import font
+from funktions import popup
+import threading
+
+popupmanager = popup.pop()
 
 opendfile = ''
 opendtext = ''
@@ -54,6 +57,20 @@ def update():
     opendtext = my_text.get(1.0, "end-1c")
     root.after(100, update)
 
+def undo():
+
+    print(opendfile)
+    if opendfile == 'save/temp.txt':
+        my_thread = threading.Thread(target=popupmanager.show, args=('Error', 'red', 'Undo only works with saved files.'))
+        my_thread.start()
+        return
+    print(f'undid somthing in: {opendfile}')
+    my_text.delete("1.0", END)
+    opentext = open(opendfile, 'r')
+    inhalt = opentext.read()
+    my_text.insert(END, inhalt)
+
+
 
 root = Tk()
 root.title('Lords|Editor')
@@ -67,6 +84,7 @@ text_scroll = Scrollbar(main_frame)
 text_scroll.pack(side=RIGHT,fill=Y)
 
 last_opend = open('save/lastopend.txt','r')
+
 if last_opend.read() != '':
     my_text = Text(main_frame, width=97, font=("Helvetica", 16), selectbackground="green", selectforeground="black", undo=True, yscrollcommand=text_scroll.set)
     my_text.pack()
@@ -103,7 +121,7 @@ edit_menu.add_command(label="Cut")
 edit_menu.add_command(label="Copy")
 edit_menu.add_command(label="Paste")
 file_menu.add_separator()
-edit_menu.add_command(label="Undo")
+edit_menu.add_command(label="Undo", command=undo)
 edit_menu.add_command(label="Redo")
 
 status_bar = Label(root, text='Ready   ', anchor=E)
